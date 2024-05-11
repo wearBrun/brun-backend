@@ -1,0 +1,265 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  first_name  String
+  last_name   String
+  email       String     @unique
+  password    String
+  role        Role       @default(user)
+  is_active   Boolean    @default(true)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  last_access DateTime   @default(now())
+  Address     Address[]
+  reviews     Reviews[]
+  wishlist    Wishlist[]
+  cart        Cart[]
+  orders      Order[]
+
+  @@map("users")
+}
+
+model Address {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  phone        String      @unique
+  address1     String
+  address2     String?
+  city         String
+  state        String
+  pincode      String
+  address_type AddressType @default(shipping)
+  user         User        @relation(fields: [user_id], references: [id])
+  user_id      String      @db.ObjectId
+
+  @@map("addresses")
+}
+
+model ProductCategory {
+  id            String               @id @default(auto()) @map("_id") @db.ObjectId
+  category_name String               @unique
+  product       Product[]
+  subcategory   ProductSubCategory[]
+
+  @@map("product-categories")
+}
+
+model ProductSubCategory {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  subcategory_name String          @unique
+  category         ProductCategory @relation(fields: [category_id], references: [id])
+  category_id      String          @db.ObjectId
+  product          Product[]
+
+  @@map("product-subcategories")
+}
+
+model Product {
+  id                  String             @id @default(auto()) @map("_id") @db.ObjectId
+  name                String
+  slug                String             @unique
+  sku                 String?
+  price               Float
+  discount            Float
+  colours             String
+  size_and_quantity   Options[]
+  image               Image[]
+  review              Reviews[]
+  wishlist            Wishlist[]
+  cart                Cart[]
+  description         String
+  meta_title          String?
+  meta_description    String?
+  is_published        Boolean            @default(false)
+  out_of_stock        Boolean            @default(false)
+  is_featured         Boolean            @default(false)
+  is_gift_for_you     Boolean            @default(false)
+  is_top_picks        Boolean            @default(false)
+  is_trending         Boolean            @default(false)
+  is_new_arrivals     Boolean            @default(false)
+  is_iconic_essential Boolean            @default(false)
+  category            ProductCategory    @relation(fields: [category_id], references: [id])
+  category_id         String             @db.ObjectId
+  subcategory         ProductSubCategory @relation(fields: [subcategory_id], references: [id])
+  subcategory_id      String             @db.ObjectId
+  recommendations1    Recommendations[]  @relation("Product1")
+  recommendations2    Recommendations[]  @relation("Product2")
+  created_at          DateTime           @default(now())
+  updated_at          DateTime           @updatedAt
+
+  @@map("products")
+}
+
+model Image {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  image_id   String
+  image_url  String
+  is_banner  Boolean  @default(false)
+  product    Product  @relation(fields: [product_id], references: [id])
+  product_id String   @db.ObjectId
+  created_at DateTime @default(now())
+
+  @@map("images")
+}
+
+model Recommendations {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  product1    Product @relation("Product1", fields: [product1_id], references: [id])
+  product1_id String  @db.ObjectId
+  product2    Product @relation("Product2", fields: [product2_id], references: [id])
+  product2_id String  @db.ObjectId
+
+  @@map("recommendations")
+}
+
+model Reviews {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  review     String?
+  rating     Int
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String   @db.ObjectId
+  product    Product  @relation(fields: [product_id], references: [id])
+  product_id String   @db.ObjectId
+  created_at DateTime @default(now())
+
+  @@map("reviews")
+}
+
+model Wishlist {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String   @db.ObjectId
+  product    Product  @relation(fields: [product_id], references: [id])
+  product_id String   @db.ObjectId
+  created_at DateTime @default(now())
+
+  @@map("wishlists")
+}
+
+model Cart {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id    String   @db.ObjectId
+  user       User     @relation(fields: [user_id], references: [id])
+  product_id String   @db.ObjectId
+  product    Product  @relation(fields: [product_id], references: [id])
+  quantity   Int
+  price      Float
+  discount   Float
+  colour     String
+  size       String
+  created_at DateTime @default(now())
+
+  @@map("carts")
+}
+
+model Order {
+  id                  String           @id @default(auto()) @map("_id") @db.ObjectId
+  user_id             String           @db.ObjectId
+  user                User             @relation(fields: [user_id], references: [id])
+  razorpay_order_id   String
+  razorpay_payment_id String?
+  razorpay_signature  String?
+  payment_time        DateTime?
+  products            ProductDetails[]
+  amount_to_pay       Float
+  price_details       PriceDetails
+  delivery_address    AddressDetails
+  billing_address     AddressDetails?
+  coupon_id           String?          @db.ObjectId
+  coupon              Coupon?          @relation(fields: [coupon_id], references: [id])
+  invoice_no          String
+  status              PaymentStatus    @default(pending)
+  order_status        OrderStatus      @default(Initiated)
+  cod                 Boolean          @default(false)
+  created_at          DateTime         @default(now())
+
+  @@map("orders")
+}
+
+model Coupon {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  coupon_code         String
+  description         String
+  discount            Float
+  max_discount_amount Float?
+  total_coupons       Int
+  used_coupons        Int      @default(0)
+  coupon_per_user     Int
+  validity            DateTime
+  order               Order[]
+  is_published        Boolean  @default(false)
+  is_expired          Boolean  @default(false)
+
+  @@map("coupons")
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum AddressType {
+  shipping
+  billing
+}
+
+type Options {
+  size     String
+  quantity Int
+}
+
+enum PaymentStatus {
+  pending
+  success
+  failed
+  in_refund_process
+  refunded
+}
+
+enum OrderStatus {
+  Initiated
+  Accepted
+  Shipped
+  Deliverd
+  Cancelled
+  Returned
+}
+
+type ProductDetails {
+  product_id String
+  quantity   Int
+  colour     String
+  size       String
+}
+
+type AddressDetails {
+  full_name String
+  phone     String
+  email     String
+  address1  String
+  address2  String
+  city      String
+  state     String
+  pincode   String
+}
+
+type PriceDetails {
+  price_after_discount          Float
+  coupon_discount               Float?
+  price_without_shipping_charge Float
+  shipping_charge               Float
+  Final_price                   Float
+}
