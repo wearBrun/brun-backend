@@ -75,6 +75,7 @@ model Product {
   price               Float
   discount            Float
   colours             String
+  hexcode             String
   size_and_quantity   Options[]
   image               Image[]
   review              Reviews[]
