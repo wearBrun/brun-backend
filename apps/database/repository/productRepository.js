@@ -1,4 +1,5 @@
 import prisma from '../db.conntection.js';
+import { DELETE_IMAGE } from '../../../utils/cloudinary.js';
 
 export const createProduct = async (productData) => {
     return await prisma.Product.create({
@@ -30,27 +31,27 @@ export const fetchProductBySlug = async (slug) => {
         where: {
             slug: slug
         },
-        include:{
-            image:true,
-            category:true,
-            subcategory:true,
-            review:{
-                include:{
-                    user:{
-                        select:{
-                            first_name:true,
-                            last_name:true
+        include: {
+            image: true,
+            category: true,
+            subcategory: true,
+            review: {
+                include: {
+                    user: {
+                        select: {
+                            first_name: true,
+                            last_name: true
                         }
                     }
                 }
             },
-            recommendations1:{
-                include:{
-                    product2:{
-                        include:{
-                            image:{
-                                where:{
-                                    is_banner:true
+            recommendations1: {
+                include: {
+                    product2: {
+                        include: {
+                            image: {
+                                where: {
+                                    is_banner: true
                                 }
                             }
                         }
@@ -61,60 +62,60 @@ export const fetchProductBySlug = async (slug) => {
     })
 }
 
-export const fetchProductBySlugAndUserId = async (slug,user_id,product_id) => {
+export const fetchProductBySlugAndUserId = async (slug, user_id, product_id) => {
     return await prisma.Product.findUnique({
         where: {
             slug: slug
         },
-        include:{
-            image:true,
-            category:true,
-            subcategory:true,
-            review:{
-                include:{
-                    user:{
-                        select:{
-                            first_name:true,
-                            last_name:true
+        include: {
+            image: true,
+            category: true,
+            subcategory: true,
+            review: {
+                include: {
+                    user: {
+                        select: {
+                            first_name: true,
+                            last_name: true
                         }
                     }
                 }
             },
-            recommendations1:{
-                include:{
-                    product2:{
-                        include:{
-                            image:{
-                                where:{
-                                    is_banner:true
+            recommendations1: {
+                include: {
+                    product2: {
+                        include: {
+                            image: {
+                                where: {
+                                    is_banner: true
                                 }
                             }
                         }
                     }
                 }
             },
-            wishlist:{
-                where:{
-                    user_id:user_id,
-                    product_id:product_id
+            wishlist: {
+                where: {
+                    user_id: user_id,
+                    product_id: product_id
                 }
             },
-            cart:{
-                where:{
-                    user_id:user_id,
-                    product_id:product_id
+            cart: {
+                where: {
+                    user_id: user_id,
+                    product_id: product_id
                 }
             }
         }
     })
 }
 
-export const updateProductBySlug = async (slug,productData) => {
+export const updateProductBySlug = async (slug, productData) => {
     return await prisma.Product.update({
         where: {
             slug: slug
         },
-        data:productData
+        data: productData
     })
 }
 
@@ -126,14 +127,14 @@ export const deleteProductBySlug = async (slug) => {
     })
 }
 
-export const updateTheProductStock = async(productId,quantity)=>{
+export const updateTheProductStock = async (productId, quantity) => {
     return await prisma.Product.update({
-        where:{
-            id:productId
+        where: {
+            id: productId
         },
-        data:{
-            stock:{
-                increment:-quantity
+        data: {
+            stock: {
+                increment: -quantity
             }
         }
     })
@@ -161,22 +162,22 @@ export const fetchAllImageOfaProduct = async (productId) => {
     })
 }
 
-export const bannerImageCheck = async (productId)=>{
+export const bannerImageCheck = async (productId) => {
     return await prisma.image.findMany({
         where: {
             product_id: productId,
-            is_banner:true
+            is_banner: true
         }
     })
 }
 
 export const makeImageBannerImage = async (imageId) => {
     return await prisma.image.update({
-        where:{
-            id:imageId
+        where: {
+            id: imageId
         },
-        data:{
-            is_banner:true
+        data: {
+            is_banner: true
         }
     })
 }
@@ -184,7 +185,7 @@ export const makeImageBannerImage = async (imageId) => {
 export const deleteProductImage = async (imageId) => {
     return await prisma.image.delete({
         where: {
-            id:imageId
+            id: imageId
         }
     })
 }
@@ -192,7 +193,46 @@ export const deleteProductImage = async (imageId) => {
 export const deleteMultipleProductImage = async (productId) => {
     return await prisma.image.deleteMany({
         where: {
-            product_id:productId
+            product_id: productId
         }
     })
+}
+
+export const deleteMProductImage = async (productId) => {
+    let image = await prisma.image.findMany({
+        where: {
+            product_id: productId
+        }
+    })
+    if (image.length) {
+        image.map(async (img) => {
+            if (img?.image_id) {
+                await DELETE_IMAGE(img?.image_id)
+            }
+        })
+    }
+    return await prisma.image.deleteMany({
+        where: {
+            product_id: productId
+        }
+    })
+}
+
+export const getAllProductFromCategoryId = async (categoryId) => {
+    return await prisma.product.findMany(
+        {
+            where: {
+                category_id: categoryId
+            }
+        }
+    )
+}
+export const getAllProductFromSubCategoryId = async (subCategoryId) => {
+    return await prisma.product.findMany(
+        {
+            where: {
+                subcategory_id: subCategoryId
+            }
+        }
+    )
 }

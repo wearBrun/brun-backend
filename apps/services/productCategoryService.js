@@ -2,6 +2,12 @@ import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { catchAsync } from '../../utils/catchAsync.js';
 import { createCategory,fetchCategory,fetchAllCategories,updateCategory,deleteCategory } from '../database/repository/productCategoryRepository.js';
+import { deleteSubCategoryFromCategoryId } from '../database/repository/productSubCategoryRepository.js';
+import { getAllProductFromCategoryId , deleteMProductImage ,deleteProductBySlug} from '../database/repository/productRepository.js';
+import { deleteAllRecommendaOfAProduct } from '../database/repository/recommendRepository.js';
+import { removeAllproductFromWishList } from '../database/repository/wishlistRepository.js';
+import { deleteMultipleReviewOfproduct } from '../database/repository/reviewRepository.js';
+import { removeProductsFromMultipleCart } from '../database/repository/cartRepository.js';
 
 export const addProductCategory=catchAsync(async(req,res)=>{
     const {category_name}=req.body
@@ -37,6 +43,18 @@ export const deleteProductCategory=catchAsync(async(req,res)=>{
     if(!category){
         throw new ApiError(404,'no category found')
     }
+    let product_details =await getAllProductFromCategoryId(req.params.id)
+    if(product_details.length){
+        await Promise.all(product_details.map(async (product)=>{
+            await removeProductsFromMultipleCart(product.id)
+            await deleteMultipleReviewOfproduct(product.id)
+            await removeAllproductFromWishList(product.id)
+            await deleteAllRecommendaOfAProduct(product.id)
+            await deleteMProductImage(product.id)
+            await deleteProductBySlug(product.slug)
+        }))
+    }
+    await deleteSubCategoryFromCategoryId(req.params.id)
     let deleteCategoryDetails=await deleteCategory(req.params.id)
     return res.status(204).send(new ApiResponse(204,deleteCategoryDetails,'delete Category Sucessfully'))
 })

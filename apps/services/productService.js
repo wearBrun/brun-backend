@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { catchAsync } from '../../utils/catchAsync.js';
 import { singleUpload, multiUpload, deleteImage } from '../../utils/assest.js'
+import { UPLOAD_IMAGE, UPLOAD_MULTIPLE_IMAGE, DELETE_IMAGE } from '../../utils/cloudinary.js';
 import { fetchCategory } from '../database/repository/productCategoryRepository.js';
 import { createProduct, createMultipleProduct, fetchProductBySlug, fetchProductBySlugAndUserId, fetchProductByProductId, updateProductBySlug, deleteProductBySlug, deleteMultipleProductImage, fetchAllProduct, addProductImage, fetchAllImageOfaProduct, deleteProductImage, fetchImageById, bannerImageCheck, makeImageBannerImage } from '../database/repository/productRepository.js'
 import { deleteMultipleReviewOfproduct } from '../database/repository/reviewRepository.js'
@@ -231,12 +232,19 @@ export const addProductImages = catchAsync(async (req, res) => {
     if (!productExists) {
         throw new ApiError(404, 'no product found')
     }
-    let uploadImages = await multiUpload(req.files.product_image)
-    if (!uploadImages.length) {
-        throw new ApiError(400, 'error while uploading image')
+    let images_list = []
+    if (req.files && req.files["product_image"]) {
+        let upload = await UPLOAD_MULTIPLE_IMAGE(req.files.product_image)
+        upload.forEach((x) => {
+            images_list.push({ public_id: x.public_id, url: x.secure_url })
+        })
     }
-    let addImage = await Promise.all(uploadImages.map(async (image) => {
-        return await addProductImage({ product_id: req.body.product_id, image_id: image.fileId, image_url: image.url })
+    // let uploadImages = await multiUpload(req.files.product_image)
+    // if (!uploadImages.length) {
+    //     throw new ApiError(400, 'error while uploading image')
+    // }
+    let addImage = await Promise.all(images_list.map(async (image) => {
+        return await addProductImage({ product_id: req.body.product_id, image_id: image.public_id, image_url: image.url })
     }))
     return res.status(200).send(new ApiResponse(200, addImage, 'product image added'))
 
@@ -271,7 +279,8 @@ export const removeProductImage = catchAsync(async (req, res) => {
     let removeImage = await deleteProductImage(req.params.id)
     if (removeImage) {
         if (removeImage?.image_id) {
-            await deleteImage(removeImage.image_id)
+            // await deleteImage(removeImage.image_id)
+            await DELETE_IMAGE(removeImage.image_id)
         }
     }
     return res.status(204).send(new ApiResponse(204, removeImage, 'image successfully removed'))
