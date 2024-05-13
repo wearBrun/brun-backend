@@ -38,3 +38,11 @@ export const deleteSubCategory = async (subCategoryId) => {
        }
    });
 };
+
+export const deleteSubCategoryFromCategoryId = async (CategoryId) => {
+    await prisma.ProductSubCategory.deleteMany({
+       where: {
+        category_id: CategoryId
+       }
+   });
+};
