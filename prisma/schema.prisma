@@ -220,6 +220,7 @@ enum AddressType {
 type Options {
   size     String
   quantity Int
+  sku      String
 }
 
 enum PaymentStatus {

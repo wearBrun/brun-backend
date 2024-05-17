@@ -23,7 +23,7 @@ export const addProductToStock = catchAsync(async (req, res) => {
         throw new ApiError(400, 'slug already in use')
     }
     let productListing = await createProduct(req.body)
-    return res.status(201).send(201, productListing, 'product added successfully')
+    return res.status(201).send(new ApiResponse(201, productListing, 'product added successfully'))
 })
 
 export const addBulkProductToStock = catchAsync(async (req, res) => {
