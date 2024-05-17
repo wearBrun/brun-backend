@@ -7,9 +7,12 @@ import { decodeAccessToken } from '../utils/helper.js';
 export const verifyJWT = catchAsync(async (req, res, next) => {
     let token = req.header('Authorization')?.replace("Bearer ", "")
     if (!token) {
-        throw new ApiError(401, "Unauthorized request");
+      throw new ApiError(401, "Unauthorized request");
     }
     const decodedToken = decodeAccessToken(token)
+    if (!decodedToken) {
+      throw new ApiError(401, "Unauthorized request");
+  }
     if (!decodedToken.is_active) {
         throw new ApiError(401, "Unauthorized request");
     }

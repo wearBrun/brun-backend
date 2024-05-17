@@ -4,6 +4,10 @@ import env from '../env.js'
 
 export const errorHandler = (err, req, res, next) => {
   let error = err;
+  //Handel Token Expiration error
+  if(error.name==="TokenExpiredError"){
+    error = new ApiError(error.statusCode||401, error.message, error?.errors || [], err.stack);
+  }
   //Handel Error As Api Error
   if (!(error instanceof ApiError)) {
     const statusCode =error.statusCode || 500;
