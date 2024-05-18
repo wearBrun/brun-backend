@@ -243,10 +243,17 @@ export const addProductImages = catchAsync(async (req, res) => {
     // if (!uploadImages.length) {
     //     throw new ApiError(400, 'error while uploading image')
     // }
-    let addImage = await Promise.all(images_list.map(async (image) => {
-        return await addProductImage({ product_id: req.body.product_id, image_id: image.public_id, image_url: image.url })
-    }))
-    return res.status(200).send(new ApiResponse(200, addImage, 'product image added'))
+    if(images_list.length>1){
+        let addImage = await Promise.all(images_list.map(async (image) => {
+            return await addProductImage({ product_id: req.body.product_id, image_id: image.public_id, image_url: image.url })
+        }))
+        return res.status(200).send(new ApiResponse(200, addImage, 'product image added'))
+    }else{
+        let addImage = await Promise.all(images_list.map(async (image) => {
+            return await addProductImage({ product_id: req.body.product_id, image_id: image.public_id, image_url: image.url,is_banner:true })
+        }))
+        return res.status(200).send(new ApiResponse(200, addImage, 'product image added'))
+    }
 
 })
 
