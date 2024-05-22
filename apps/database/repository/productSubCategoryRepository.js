@@ -14,6 +14,11 @@ export const fetchAllSubCategoriesOfACategory = async (categoryId) => {
     });
 };
 
+export const fetchAllSubCategories= async () => {
+    return await prisma.ProductSubCategory.findMany({    
+    });
+};
+
 export const fetchSubCategory = async (subCategoryId) => {
     return await prisma.ProductSubCategory.findUnique({
         where: {

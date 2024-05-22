@@ -86,7 +86,10 @@ export const createOrder = catchAsync(async (req, res) => {
             }
             priceObj["price_without_shipping_charge"] = totalAmount
             order_object["coupon_id"] = req.body.coupon_id
+        }else{
+            priceObj["coupon_discount"] =0 
         }
+        priceObj["price_without_shipping_charge"] = totalAmount
         totalAmount = totalAmount + env.DELIVERY_CHARGES
         priceObj["shipping_charge"] = env.DELIVERY_CHARGES
         priceObj["Final_price"] = totalAmount

@@ -236,3 +236,28 @@ export const getAllProductFromSubCategoryId = async (subCategoryId) => {
         }
     )
 }
+export const getSalesCount = async (productId) => {
+    const orders = await prisma.order.findMany({
+        where: {
+            status: 'success',
+            products: {
+                some: {
+                    product_id: productId,
+                },
+            },
+        },
+        select: {
+            products: true,
+        },
+    });
+    let salesCount = 0;
+    orders.forEach(order => {
+        order.products.forEach(product => {
+            if (product.product_id === productId) {
+                salesCount += product.quantity;
+            }
+        });
+    });
+
+    return salesCount;
+};

@@ -1,7 +1,7 @@
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { catchAsync } from '../../utils/catchAsync.js';
-import { createSubCategory,fetchSubCategory,fetchAllSubCategoriesOfACategory,updateSubCategory,deleteSubCategory } from '../database/repository/productSubCategoryRepository.js';
+import { createSubCategory,fetchSubCategory,fetchAllSubCategoriesOfACategory,fetchAllSubCategories,updateSubCategory,deleteSubCategory } from '../database/repository/productSubCategoryRepository.js';
 import { getAllProductFromSubCategoryId , deleteMProductImage ,deleteProductBySlug} from '../database/repository/productRepository.js';
 import { deleteAllRecommendaOfAProduct } from '../database/repository/recommendRepository.js';
 import { removeAllproductFromWishList } from '../database/repository/wishlistRepository.js';
@@ -23,6 +23,11 @@ export const getProductSubCategory=catchAsync(async(req,res)=>{
 
 export const getAllSubCategoryOfCategory=catchAsync(async(req,res)=>{
     let allSubCategories=await fetchAllSubCategoriesOfACategory(req.params.category_id)
+    return res.status(200).send(new ApiResponse(200,allSubCategories,'All SubCategory Fetched Sucessfully'))
+})
+
+export const getAllSubCategory=catchAsync(async(req,res)=>{
+    let allSubCategories=await fetchAllSubCategories()
     return res.status(200).send(new ApiResponse(200,allSubCategories,'All SubCategory Fetched Sucessfully'))
 })
 

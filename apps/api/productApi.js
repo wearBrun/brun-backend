@@ -1,7 +1,7 @@
 import express from 'express';
 const productRouter=express.Router()
 import { UploadFile } from '../../middlewares/multer.mw.js'
-import { addProductToStock, getAllProductInStock, addBulkProductToStock,updateProductInstock,removeProductToStock,addProductImages,getAllImageOfAProduct,makeProductImageBannerImage,removeProductImage,stockProductDetails} from './../services/productService.js'
+import { addProductToStock, getAllProductInStock,getAllProductInStockAdminPanel, addBulkProductToStock,updateProductInstock,removeProductToStock,addProductImages,getAllImageOfAProduct,makeProductImageBannerImage,removeProductImage,stockProductDetails} from './../services/productService.js'
 import { pinAndUnpinProdctFromWishlist } from '../services/wishlistService.js'
 import { addProductForRecommendation,getAllProductFormRecommendation,deleteProductFormRecommendation } from '../services/recommendedService.js'
 import { verifyJWT,verifyPermission} from '../../middlewares/auth.mw.js'
@@ -9,6 +9,7 @@ import { verifyJWT,verifyPermission} from '../../middlewares/auth.mw.js'
 productRouter.route('/').post( verifyJWT,verifyPermission,addProductToStock)
 productRouter.route('/bulk-add').post(verifyJWT,verifyPermission,addBulkProductToStock)
 productRouter.route('/').get(getAllProductInStock)
+productRouter.route('/list').get(verifyJWT,verifyPermission,getAllProductInStockAdminPanel)
 productRouter.route('/:slug').get(stockProductDetails)
 productRouter.route('/:slug').patch(verifyJWT,verifyPermission,updateProductInstock)
 productRouter.route('/:slug').delete(verifyJWT,verifyPermission,removeProductToStock)
