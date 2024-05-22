@@ -142,6 +142,7 @@ export const verifyOrder = catchAsync(async (req, res) => {
         throw new ApiError(400, 'error while capture paument details')
     }
     await verifyPaymentAndProcessOrder(updateOrderDetails)
+/***email should be sent to admin on successful order */
     // await incrementTheCouponUseQuantity(updateOrderDetails.coupon_id)
     // for (const product of updateOrderDetails.products) {
     //     await updateTheProductStock(product.product_id, product.quantity);

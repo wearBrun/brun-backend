@@ -4,7 +4,7 @@ import { addProductSubCategory,getAllSubCategoryOfCategory,getProductSubCategory
 import { verifyJWT,verifyPermission} from '../../middlewares/auth.mw.js';
 
 subcategoryRouter.route('/').post(verifyJWT,verifyPermission,addProductSubCategory)
-subcategoryRouter.route('/list').get(verifyJWT,verifyPermission,getAllSubCategory)
+subcategoryRouter.route('/list').get(getAllSubCategory)
 subcategoryRouter.route('/all/:category_id').get(getAllSubCategoryOfCategory)
 subcategoryRouter.route('/:id').get(verifyJWT,verifyPermission,getProductSubCategory)
 subcategoryRouter.route('/:id').patch(verifyJWT,verifyPermission,updateProductSubCategory)

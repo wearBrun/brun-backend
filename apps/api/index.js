@@ -10,6 +10,7 @@ import reviewRouter from '../api/reviewApi.js';
 import cartRouter from '../api/cartApi.js';
 import orderRouter from '../api/orderApi.js';
 import couponRouter from './couponApi.js';
+import newsletterRouter from './newsletter.js';
 
 router.use('/api/v1',healthCheckRouter)
 router.use('/api/v1/user',userRouter)
@@ -21,5 +22,6 @@ router.use('/api/v1/review',reviewRouter)
 router.use('/api/v1/cart',cartRouter)
 router.use('/api/v1/order',orderRouter)
 router.use('/api/v1/coupon',couponRouter)
+router.use('/api/v1/newsletter',newsletterRouter)
 
 export default router

@@ -207,6 +207,15 @@ model Coupon {
   @@map("coupons")
 }
 
+model Newsletter {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  email         String   @unique
+  is_subscribed Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  @@map("newsletters")
+}
+
 enum Role {
   user
   admin
